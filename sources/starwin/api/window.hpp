@@ -35,28 +35,28 @@ namespace starwin
     {
         //General window callbacks
 
-        std::function<void(window* window)> on_close_requested;
-        std::function<void(window* window, const starlib_stdint::u32 width, const starlib_stdint::u32 height)> on_resized;
-        std::function<void(window* window, const starlib_stdint::u32 x, const starlib_stdint::u32 y)> on_repositioned;
-        std::function<void(window* window, const bool minimized)> on_minimization_change;
-        std::function<void(window* window, const bool maximised)> on_maximization_change;
-        std::function<void(window* window, const bool focused)> on_focus_change;
+        std::function<void(window* window)> on_close_requested = [](auto){};
+        std::function<void(window* window, const starlib_stdint::u32 width, const starlib_stdint::u32 height)> on_resized = [](auto, auto, auto){};
+        std::function<void(window* window, const starlib_stdint::u32 x, const starlib_stdint::u32 y)> on_repositioned = [](auto, auto, auto){};
+        std::function<void(window* window, const bool minimized)> on_minimization_change = [](auto, auto){};
+        std::function<void(window* window, const bool maximised)> on_maximization_change = [](auto, auto){};
+        std::function<void(window* window, const bool focused)> on_focus_change = [](auto, auto){};
 
         //Input handling
 
-        std::function<void(window* window, const starlib_stdint::u32 player_id)> on_controller_connect;
-        std::function<void(window* window, const starlib_stdint::u32 player_id)> on_controller_disconnect;
+        std::function<void(window* window, const starlib_stdint::u32 player_id)> on_controller_connect = [](auto, auto){};
+        std::function<void(window* window, const starlib_stdint::u32 player_id)> on_controller_disconnect = [](auto, auto){};
 
         //Graphics callbacks
 
         ///NOTE: You should not use this for your main render loop.
         ///This function is triggered when a redraw is requested due to input events such as the window being repositioned/resized by the user.
         ///Use this function ONLY to make sure your window continues rendering correctly during those events.
-        std::function<void(window* window)> on_redraw;
+        std::function<void(window* window)> on_redraw = [](auto){};
 
         ///NOTE: This may or may not be called at the same time as an actual window resize.
         ///You should rely on this event for triggering graphics framebuffer resizes instead of on_resized
-        std::function<void(window* window, const starlib_stdint::u32 width, const starlib_stdint::u32 height)> on_framebuffer_recreate;
+        std::function<void(window* window, const starlib_stdint::u32 width, const starlib_stdint::u32 height)> on_framebuffer_recreate = [](auto, auto, auto){};
     };
 
     struct fullscreen_window_config
@@ -188,10 +188,10 @@ namespace starwin
         window_callbacks callbacks;
     protected:
 
-        virtual_keyboard_input* get_keyboard_hardware() const;
-        virtual_mouse_input* get_mouse_hardware() const;
-        starlib_stdint::u32 connect_controller(starlib_stdint::i32 id) const;
-        starlib_stdint::u32 disconnect_controller(starlib_stdint::i32 id) const;
+        [[nodiscard]] virtual_keyboard_input* get_keyboard_hardware() const;
+        [[nodiscard]] virtual_mouse_input* get_mouse_hardware() const;
+        [[nodiscard]] starlib_stdint::u32 connect_controller(starlib_stdint::i32 id) const;
+        [[nodiscard]] starlib_stdint::u32 disconnect_controller(starlib_stdint::i32 id) const;
         void poll_controllers() const;
         void input_advance_frame() const;
 
