@@ -7,8 +7,6 @@
 
 namespace starwin
 {
-    using namespace starlib_keycodes;
-
     constexpr static u32 non_keyboard_id_bit = (1ul << 31ul);
     constexpr static u32 mouse_button_id_offset = 0;
     constexpr static u32 controller_button_id_offset = 20;
@@ -29,7 +27,7 @@ namespace starwin
 
     void init_nonprintable_keyname_map(window_input* input)
     {
-        const std::vector<std::tuple<starlib_keycodes::keycode, std::string>> unprintables = {
+        const std::vector<std::tuple<starlib::keycode, std::string>> unprintables = {
             {keycode::SPACE, "space"}, {keycode::LEFT_ALT, "left_alt"},
             {keycode::RIGHT_ALT, "right_alt"}, {keycode::ESCAPE, "esc"},
             {keycode::ENTER, "enter"}, {keycode::TAB, "tab"},
@@ -84,7 +82,7 @@ namespace starwin
         return &keyboard_hardware;
     }
 
-    u32 glfw_window_input::keycode_to_id(starlib_keycodes::keycode keycode)
+    u32 glfw_window_input::keycode_to_id(starlib::keycode keycode)
     {
         if (static_cast<u32>(keycode) < 60) return static_cast<u32>(keycode) | non_keyboard_id_bit; //Mouse buttons, gamepad buttons
         return glfwGetKeyScancode(static_cast<int>(keycode));
@@ -220,10 +218,10 @@ namespace starwin
     {
         ZoneScoped;
 
-        const u32 dpad_left_id = keycode_to_id(starlib_keycodes::keycode::DPAD_LEFT);
-        const u32 dpad_right_id = keycode_to_id(starlib_keycodes::keycode::DPAD_RIGHT);
-        const u32 dpad_down_id = keycode_to_id(starlib_keycodes::keycode::DPAD_DOWN);
-        const u32 dpad_up_id = keycode_to_id(starlib_keycodes::keycode::DPAD_UP);
+        const u32 dpad_left_id = keycode_to_id(starlib::keycode::DPAD_LEFT);
+        const u32 dpad_right_id = keycode_to_id(starlib::keycode::DPAD_RIGHT);
+        const u32 dpad_down_id = keycode_to_id(starlib::keycode::DPAD_DOWN);
+        const u32 dpad_up_id = keycode_to_id(starlib::keycode::DPAD_UP);
 
         for (i32 idx = 0; idx < 16; idx++)
         {

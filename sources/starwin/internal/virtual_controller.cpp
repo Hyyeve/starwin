@@ -5,7 +5,7 @@
 
 namespace starwin
 {
-    using namespace starlib_stdint;
+    using namespace starlib;
     bool controller_input::is_pressed(const u32 id)
     {
         return button_map[id] > 0;

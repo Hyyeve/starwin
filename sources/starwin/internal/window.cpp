@@ -6,7 +6,7 @@
 
 namespace starwin
 {
-    using namespace starlib_stdint;
+    using namespace starlib;
 
     status window::create(const window_config& config, window*& out_window)
     {

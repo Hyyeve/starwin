@@ -7,7 +7,6 @@
 namespace starwin
 {
     using namespace starlib;
-    using namespace starlib_stdint;
 
     class glfw_window_input : public window_input
     {
@@ -17,7 +16,7 @@ namespace starwin
 
         [[nodiscard]] keyboard_input* keyboard() override;
 
-        [[nodiscard]] u32 keycode_to_id(starlib_keycodes::keycode keycode) override;
+        [[nodiscard]] u32 keycode_to_id(starlib::keycode keycode) override;
         [[nodiscard]] std::string id_to_name(u32 id) override;
 
         [[nodiscard]] mouse_input* mouse() override;

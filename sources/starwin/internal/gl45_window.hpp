@@ -3,7 +3,6 @@
 
 namespace starwin
 {
-    using namespace starlib_stdint;
     class gl45_window final : public glfw_window
     {
     public:

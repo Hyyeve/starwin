@@ -21,8 +21,8 @@ namespace starwin
 
         std::string title = "Stardraw Window";
 
-        starlib_stdint::u32 width = 1280;
-        starlib_stdint::u32 height = 720;
+        starlib::u32 width = 1280;
+        starlib::u32 height = 720;
 
         bool transparent_framebuffer = false;
 
@@ -36,16 +36,16 @@ namespace starwin
         //General window callbacks
 
         std::function<void(window* window)> on_close_requested = [](auto){};
-        std::function<void(window* window, const starlib_stdint::u32 width, const starlib_stdint::u32 height)> on_resized = [](auto, auto, auto){};
-        std::function<void(window* window, const starlib_stdint::u32 x, const starlib_stdint::u32 y)> on_repositioned = [](auto, auto, auto){};
+        std::function<void(window* window, const starlib::u32 width, const starlib::u32 height)> on_resized = [](auto, auto, auto){};
+        std::function<void(window* window, const starlib::u32 x, const starlib::u32 y)> on_repositioned = [](auto, auto, auto){};
         std::function<void(window* window, const bool minimized)> on_minimization_change = [](auto, auto){};
         std::function<void(window* window, const bool maximised)> on_maximization_change = [](auto, auto){};
         std::function<void(window* window, const bool focused)> on_focus_change = [](auto, auto){};
 
         //Input handling
 
-        std::function<void(window* window, const starlib_stdint::u32 player_id)> on_controller_connect = [](auto, auto){};
-        std::function<void(window* window, const starlib_stdint::u32 player_id)> on_controller_disconnect = [](auto, auto){};
+        std::function<void(window* window, const starlib::u32 player_id)> on_controller_connect = [](auto, auto){};
+        std::function<void(window* window, const starlib::u32 player_id)> on_controller_disconnect = [](auto, auto){};
 
         //Graphics callbacks
 
@@ -56,24 +56,24 @@ namespace starwin
 
         ///NOTE: This may or may not be called at the same time as an actual window resize.
         ///You should rely on this event for triggering graphics framebuffer resizes instead of on_resized
-        std::function<void(window* window, const starlib_stdint::u32 width, const starlib_stdint::u32 height)> on_framebuffer_recreate = [](auto, auto, auto){};
+        std::function<void(window* window, const starlib::u32 width, const starlib::u32 height)> on_framebuffer_recreate = [](auto, auto, auto){};
     };
 
     struct fullscreen_window_config
     {
-        starlib_stdint::u32 width;
-        starlib_stdint::u32 height;
-        starlib_stdint::u32 refresh_rate;
+        starlib::u32 width;
+        starlib::u32 height;
+        starlib::u32 refresh_rate;
     };
 
     struct display_info
     {
         std::string name;
-        starlib_stdint::u32 index;
-        starlib_stdint::u32 width;
-        starlib_stdint::u32 height;
-        starlib_stdint::i32 position_x;
-        starlib_stdint::i32 positoin_y;
+        starlib::u32 index;
+        starlib::u32 width;
+        starlib::u32 height;
+        starlib::i32 position_x;
+        starlib::i32 positoin_y;
     };
 
     class window_input
@@ -85,31 +85,31 @@ namespace starwin
 
         ///Convert a named keycode into an ID to use with device input functions
         ///Note: Controllers with no mappings have arbitrary IDs for all buttons/axes/dpads, but IDs for these always start from 0.
-        [[nodiscard]] virtual starlib_stdint::u32 keycode_to_id(starlib_keycodes::keycode keycode) = 0;
+        [[nodiscard]] virtual starlib::u32 keycode_to_id(starlib::keycode keycode) = 0;
 
         ///Convert an ID to a string name. For printable characters, this is usually the character itself.
         ///For other ids, this is a lowercase identifier
         ///Ex: dpad_left, mouse_middle, gamepad_b ...
-        [[nodiscard]] virtual std::string id_to_name(starlib_stdint::u32 id) = 0;
+        [[nodiscard]] virtual std::string id_to_name(starlib::u32 id) = 0;
 
         [[nodiscard]] virtual mouse_input* mouse() = 0;
-        [[nodiscard]] virtual controller_input* controller(const starlib_stdint::u32 player_index) = 0;
+        [[nodiscard]] virtual controller_input* controller(const starlib::u32 player_index) = 0;
 
         virtual void reset_controllers() = 0;
-        virtual void swap_players(const starlib_stdint::u32 player_index_a, const starlib_stdint::u32 player_index_b) = 0;
-        [[nodiscard]] virtual bool controller_connected(const starlib_stdint::u32 player_index) const = 0;
-        [[nodiscard]] virtual std::string controller_name(const starlib_stdint::u32 player_index) const = 0;
-        [[nodiscard]] virtual bool controller_has_mappings(const starlib_stdint::u32 player_index) const = 0;
+        virtual void swap_players(const starlib::u32 player_index_a, const starlib::u32 player_index_b) = 0;
+        [[nodiscard]] virtual bool controller_connected(const starlib::u32 player_index) const = 0;
+        [[nodiscard]] virtual std::string controller_name(const starlib::u32 player_index) const = 0;
+        [[nodiscard]] virtual bool controller_has_mappings(const starlib::u32 player_index) const = 0;
 
     protected:
         window_input() = default;
 
-        virtual starlib_stdint::u32 connect_controller(starlib_stdint::i32 id) = 0;
-        virtual starlib_stdint::u32 disconnect_controller(starlib_stdint::i32 id) = 0;
+        virtual starlib::u32 connect_controller(starlib::i32 id) = 0;
+        virtual starlib::u32 disconnect_controller(starlib::i32 id) = 0;
         virtual void poll_controllers() = 0;
 
         std::array<virtual_controller_input, 16> controller_hardware;
-        std::array<starlib_stdint::i32, 16> player_to_controller_map {};
+        std::array<starlib::i32, 16> player_to_controller_map {};
         virtual_mouse_input mouse_hardware;
         virtual_keyboard_input keyboard_hardware;
 
@@ -125,32 +125,32 @@ namespace starwin
         //Global functionality
 
         virtual starlib::status set_title(const std::string& title) = 0;
-        virtual starlib::status set_icon(const starlib_stdint::u32 width, const starlib_stdint::u32 height, void* rgba8_pixels) = 0;
+        virtual starlib::status set_icon(const starlib::u32 width, const starlib::u32 height, void* rgba8_pixels) = 0;
         virtual starlib::status set_cursor_mode(const cursor_mode mode) = 0;
         virtual starlib::status set_vsync(const bool sync) = 0; //Enabled should pick the lowest latency non-tearing mode available.
         virtual starlib::status set_visible(const bool visible) = 0;
         virtual starlib::status set_floating(const bool floating) = 0;
-        virtual starlib::status set_opacity(const starlib_stdint::f32 opacity) = 0; //Opacity of the window as a whole; not framebuffer.
+        virtual starlib::status set_opacity(const starlib::f32 opacity) = 0; //Opacity of the window as a whole; not framebuffer.
         virtual starlib::status steal_focus() = 0;
         virtual starlib::status request_focus() = 0;
 
         //Windowed mode functionality
 
-        virtual starlib::status set_size(const starlib_stdint::u32 width, const starlib_stdint::u32 height) = 0;
-        virtual starlib::status set_position(const starlib_stdint::i32 x, const starlib_stdint::i32 y) = 0;
+        virtual starlib::status set_size(const starlib::u32 width, const starlib::u32 height) = 0;
+        virtual starlib::status set_position(const starlib::i32 x, const starlib::i32 y) = 0;
         virtual starlib::status set_decorated(const bool decorations) = 0;
         virtual starlib::status set_resizable(const bool resizable) = 0;
 
-        virtual starlib::status set_resizing_limit(const starlib_stdint::u32 min_width, const starlib_stdint::u32 min_height, const starlib_stdint::u32 max_width, const starlib_stdint::u32 max_height) = 0;
+        virtual starlib::status set_resizing_limit(const starlib::u32 min_width, const starlib::u32 min_height, const starlib::u32 max_width, const starlib::u32 max_height) = 0;
         virtual starlib::status clear_resizing_limit() = 0;
-        virtual starlib::status set_aspect_ratio_limit(const starlib_stdint::u32 width, const starlib_stdint::u32 height) = 0;
+        virtual starlib::status set_aspect_ratio_limit(const starlib::u32 width, const starlib::u32 height) = 0;
         virtual starlib::status clear_aspect_ratio_limit() = 0;
 
         //Mode switching
 
-        virtual starlib::status to_exclusive_fullscreen(const starlib_stdint::u32 display_index, const fullscreen_window_config config) = 0;
-        virtual starlib::status to_windowed_fullscreen(const starlib_stdint::u32 display_index) = 0; //Window is set to windowed mode and resized/positioned to cover the display.
-        virtual starlib::status to_windowed(const starlib_stdint::u32 width, const starlib_stdint::u32 height, const starlib_stdint::i32 x, const starlib_stdint::i32 y) = 0;
+        virtual starlib::status to_exclusive_fullscreen(const starlib::u32 display_index, const fullscreen_window_config config) = 0;
+        virtual starlib::status to_windowed_fullscreen(const starlib::u32 display_index) = 0; //Window is set to windowed mode and resized/positioned to cover the display.
+        virtual starlib::status to_windowed(const starlib::u32 width, const starlib::u32 height, const starlib::i32 x, const starlib::i32 y) = 0;
 
         //Size switching
 
@@ -168,7 +168,7 @@ namespace starwin
 
         [[nodiscard]] virtual display_info get_primary_display() const = 0;
         [[nodiscard]] virtual std::vector<display_info> get_available_displays() const = 0;
-        [[nodiscard]] virtual std::vector<fullscreen_window_config> get_supported_fullscreen_configs(const starlib_stdint::u32 display_index) const = 0;
+        [[nodiscard]] virtual std::vector<fullscreen_window_config> get_supported_fullscreen_configs(const starlib::u32 display_index) const = 0;
 
         //Window information
 
@@ -190,8 +190,8 @@ namespace starwin
 
         [[nodiscard]] virtual_keyboard_input* get_keyboard_hardware() const;
         [[nodiscard]] virtual_mouse_input* get_mouse_hardware() const;
-        [[nodiscard]] starlib_stdint::u32 connect_controller(starlib_stdint::i32 id) const;
-        [[nodiscard]] starlib_stdint::u32 disconnect_controller(starlib_stdint::i32 id) const;
+        [[nodiscard]] starlib::u32 connect_controller(starlib::i32 id) const;
+        [[nodiscard]] starlib::u32 disconnect_controller(starlib::i32 id) const;
         void poll_controllers() const;
         void input_advance_frame() const;
 
