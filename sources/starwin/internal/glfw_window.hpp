@@ -1,39 +1,12 @@
 #pragma once
 
 #include "GLFW/glfw3.h"
-#include "starlib/types/status.hpp"
+#include "starlib/general/status.hpp"
 #include "starwin/api/window.hpp"
 
 namespace starwin
 {
     using namespace starlib;
-
-    class glfw_window_input : public window_input
-    {
-    public:
-        glfw_window_input() = default;
-        ~glfw_window_input() override;
-
-        [[nodiscard]] keyboard_input* keyboard() override;
-
-        [[nodiscard]] u32 keycode_to_id(starlib::keycode keycode) override;
-        [[nodiscard]] std::string id_to_name(u32 id) override;
-
-        [[nodiscard]] mouse_input* mouse() override;
-
-        [[nodiscard]] controller_input* controller(const u32 player_index) override;
-
-        void reset_controllers() override;
-        void swap_players(const u32 player_index_a, const u32 player_index_b) override;
-        [[nodiscard]] bool controller_connected(const u32 player_index) const override;
-        [[nodiscard]] std::string controller_name(const u32 player_index) const override;
-        [[nodiscard]] bool controller_has_mappings(const u32 player_index) const override;
-
-    protected:
-        u32 connect_controller(i32 id) override;
-        u32 disconnect_controller(i32 id) override;
-        void poll_controllers() override;
-    };
 
     class glfw_window : public window
     {
@@ -65,6 +38,9 @@ namespace starwin
         status minimise() override;
         status restore() override;
 
+        [[nodiscard]] u64 get_input_control_id(const input_control_type control) override;
+        [[nodiscard]] std::string get_input_control_name(u64 input_control_id) override;
+
         [[nodiscard]] display_info get_primary_display() const override;
         [[nodiscard]] std::vector<fullscreen_window_config> get_supported_fullscreen_configs(u32 display_index) const override;
         [[nodiscard]] std::vector<display_info> get_available_displays() const override;
@@ -87,7 +63,11 @@ namespace starwin
         [[nodiscard]] static std::vector<GLFWmonitor*> get_monitors();
         [[nodiscard]] static display_info get_display_info(GLFWmonitor* monitor, u32 monitor_idx);
 
+        void poll_controllers();
+        void init_input_state();
+
         GLFWwindow* handle = nullptr;
+        std::vector<input_event> collected_events;
 
     private:
         static void close_requested_event(GLFWwindow* window);
@@ -106,11 +86,5 @@ namespace starwin
         static void mouse_position_event(GLFWwindow* window, const f64 x, const f64 y);
         static void joystick_connection_event(const i32 id, const i32 event);
 
-        void on_key_event(const i32 scancode, const i32 action, const i32 mods) const;
-        void on_char_event(const u32 codepoint) const;
-        void on_mouse_button_event(const i32 button, const i32 action, i32 mods) const;
-        void on_mouse_scroll_event(const f64 x_offset, const f64 y_offset) const;
-        void on_mouse_position_event(const f64 x, const f64 y) const;
-        void on_joystick_connection_event(const i32 id, const i32 event);
     };
 }

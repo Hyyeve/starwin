@@ -1,7 +1,7 @@
 #include "gl45_window.hpp"
 
 #include <tracy/Tracy.hpp>
-#include "starlib/general/string.hpp"
+#include "starlib/utility/string.hpp"
 
 namespace starwin
 {

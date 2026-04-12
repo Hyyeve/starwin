@@ -1,15 +1,15 @@
 #pragma once
-#include <array>
 #include <functional>
 #include <string>
 
 #include "input.hpp"
-#include "starlib/general/keycode.hpp"
-#include "starlib/types/graphics.hpp"
-#include "starlib/types/status.hpp"
+#include "starlib/general/graphics.hpp"
+#include "starlib/general/status.hpp"
 
 namespace starwin
 {
+    using namespace starlib::stdint;
+
     enum class cursor_mode
     {
         NORMAL, HIDDEN, CAPTURED, CONFINED,
@@ -21,8 +21,8 @@ namespace starwin
 
         std::string title = "Stardraw Window";
 
-        starlib::u32 width = 1280;
-        starlib::u32 height = 720;
+        u32 width = 1280;
+        u32 height = 720;
 
         bool transparent_framebuffer = false;
 
@@ -30,22 +30,28 @@ namespace starwin
         bool gl_debug_context = false;
     };
 
+
+    /*
+    POSSIBLE INPUT TYPES:
+        - key or button down/up (keyboard, mouse, gamepad)
+        - raw value (mouse pos, scroll, gamepad joysticks, triggers)
+     */
+
     class window;
     struct window_callbacks
     {
         //General window callbacks
 
         std::function<void(window* window)> on_close_requested = [](auto){};
-        std::function<void(window* window, const starlib::u32 width, const starlib::u32 height)> on_resized = [](auto, auto, auto){};
-        std::function<void(window* window, const starlib::u32 x, const starlib::u32 y)> on_repositioned = [](auto, auto, auto){};
+        std::function<void(window* window, const u32 width, const u32 height)> on_resized = [](auto, auto, auto){};
+        std::function<void(window* window, const u32 x, const u32 y)> on_repositioned = [](auto, auto, auto){};
         std::function<void(window* window, const bool minimized)> on_minimization_change = [](auto, auto){};
         std::function<void(window* window, const bool maximised)> on_maximization_change = [](auto, auto){};
         std::function<void(window* window, const bool focused)> on_focus_change = [](auto, auto){};
 
         //Input handling
-
-        std::function<void(window* window, const starlib::u32 player_id)> on_controller_connect = [](auto, auto){};
-        std::function<void(window* window, const starlib::u32 player_id)> on_controller_disconnect = [](auto, auto){};
+        std::function<void(window* window, const std::vector<input_event>& events)> on_input_events = [](auto, auto){};
+        std::function<void(window* window, const u32 utf_codepoint)> on_input_character = [](auto, auto){};
 
         //Graphics callbacks
 
@@ -56,7 +62,7 @@ namespace starwin
 
         ///NOTE: This may or may not be called at the same time as an actual window resize.
         ///You should rely on this event for triggering graphics framebuffer resizes instead of on_resized
-        std::function<void(window* window, const starlib::u32 width, const starlib::u32 height)> on_framebuffer_recreate = [](auto, auto, auto){};
+        std::function<void(window* window, const u32 width, const u32 height)> on_framebuffer_recreate = [](auto, auto, auto){};
     };
 
     struct fullscreen_window_config
@@ -74,46 +80,6 @@ namespace starwin
         starlib::u32 height;
         starlib::i32 position_x;
         starlib::i32 positoin_y;
-    };
-
-    class window_input
-    {
-    public:
-        virtual ~window_input() = default;
-
-        [[nodiscard]] virtual keyboard_input* keyboard() = 0;
-
-        ///Convert a named keycode into an ID to use with device input functions
-        ///Note: Controllers with no mappings have arbitrary IDs for all buttons/axes/dpads, but IDs for these always start from 0.
-        [[nodiscard]] virtual starlib::u32 keycode_to_id(starlib::keycode keycode) = 0;
-
-        ///Convert an ID to a string name. For printable characters, this is usually the character itself.
-        ///For other ids, this is a lowercase identifier
-        ///Ex: dpad_left, mouse_middle, gamepad_b ...
-        [[nodiscard]] virtual std::string id_to_name(starlib::u32 id) = 0;
-
-        [[nodiscard]] virtual mouse_input* mouse() = 0;
-        [[nodiscard]] virtual controller_input* controller(const starlib::u32 player_index) = 0;
-
-        virtual void reset_controllers() = 0;
-        virtual void swap_players(const starlib::u32 player_index_a, const starlib::u32 player_index_b) = 0;
-        [[nodiscard]] virtual bool controller_connected(const starlib::u32 player_index) const = 0;
-        [[nodiscard]] virtual std::string controller_name(const starlib::u32 player_index) const = 0;
-        [[nodiscard]] virtual bool controller_has_mappings(const starlib::u32 player_index) const = 0;
-
-    protected:
-        window_input() = default;
-
-        virtual starlib::u32 connect_controller(starlib::i32 id) = 0;
-        virtual starlib::u32 disconnect_controller(starlib::i32 id) = 0;
-        virtual void poll_controllers() = 0;
-
-        std::array<virtual_controller_input, 16> controller_hardware;
-        std::array<starlib::i32, 16> player_to_controller_map {};
-        virtual_mouse_input mouse_hardware;
-        virtual_keyboard_input keyboard_hardware;
-
-        friend class window;
     };
 
     class window
@@ -175,7 +141,15 @@ namespace starwin
         [[nodiscard]] virtual bool is_close_requested() const = 0;
         [[nodiscard]] virtual bool is_focused() const = 0;
 
-        [[nodiscard]] virtual window_input* get_input();
+        //Input management
+
+        ///Convert an input control type into a control id.
+        [[nodiscard]] virtual u64 get_input_control_id(const input_control_type control) = 0;
+
+        ///Convert an input control id to a string name. For printable characters, this is usually the character itself.
+        ///For other ids, this is a lowercase identifier
+        ///Ex: dpad_left, mouse_middle, gamepad_b ...
+        [[nodiscard]] virtual std::string get_input_control_name(u64 input_id) = 0;
 
         ///OPENGL Only: Get the GL api loader function
         [[nodiscard]] virtual starlib::gl_loader_func gl_get_loader_func() = 0;
@@ -186,15 +160,5 @@ namespace starwin
         [[nodiscard]] virtual starlib::status gl_apply_context() = 0;
 
         window_callbacks callbacks;
-    protected:
-
-        [[nodiscard]] virtual_keyboard_input* get_keyboard_hardware() const;
-        [[nodiscard]] virtual_mouse_input* get_mouse_hardware() const;
-        [[nodiscard]] starlib::u32 connect_controller(starlib::i32 id) const;
-        [[nodiscard]] starlib::u32 disconnect_controller(starlib::i32 id) const;
-        void poll_controllers() const;
-        void input_advance_frame() const;
-
-        window_input* input_devices = nullptr;
     };
 }
