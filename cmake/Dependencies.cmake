@@ -3,9 +3,7 @@ find_package(glfw3 3.3 REQUIRED)
 
 include(FetchContent)
 
-if(NOT TARGET starlib)
-add_subdirectory(libraries/starlib)
-endif()
+add_subdirectory_library(starlib libraries/starlib)
 
 FetchContent_Declare(
         tracy
